@@ -1,3 +1,17 @@
+// Copyright (c) 2021,2022,2023 Montana State (USA).
+// All rights reserved.
+//
+// This file is part of CGAL (www.cgal.org).
+//
+// $URL$
+// $Id$
+// SPDX-License-Identifier: GPL-3.0-or-later OR LicenseRef-Commercial
+//
+// Author(s)     : Bradley McCoy <bradleymccoy@montana.edu>
+//
+
+
+
 // Adapting the dual of an arrangement to a BGL graph.
 #include <CGAL/config.h>
 #include <boost/graph/breadth_first_search.hpp>
@@ -22,7 +36,7 @@
 //class for edge data (cables, orientation)
 //(vector of ints - cables, int orientation of curve)
 
-namespace CGAL {
+namespace CGAL { namespace internal {
 class Half_edge_DS {
 public:
     std::vector<int> cables;
@@ -50,9 +64,9 @@ public:
     }
     
 };
-}
+}}
 
-typedef CGAL::Arr_extended_dcel<Traits, int, CGAL::Half_edge_DS, int> Dcel;
+typedef CGAL::Arr_extended_dcel<Traits, int, CGAL::internal::Half_edge_DS, int> Dcel;
 typedef CGAL::Arrangement_2<Traits, Dcel>                  Ex_arrangement;
 typedef CGAL::Dual<Ex_arrangement>                         Dual_arrangement;
 typedef CGAL::Arr_face_index_map<Ex_arrangement>           Face_index_map;
@@ -73,6 +87,7 @@ typedef CGAL::Polygon_2<K> Polygon_2;
 
 //Class to hold face data a face is (id,area,edge,flag)
 //f=(int - depth in a BFS search, double a - area, Ex_arrangement::Ccb_halfedge_circulator - edge to face discoverd earlier, bool flag for exploration)
+namespace CGAL { namespace internal {
 class Face_DS {
 public:
     int id;
@@ -104,11 +119,12 @@ public:
     void  print() {
         
         std::cout << "face: "<< id << " has area: " << area<<
-         " edge: ("<< edge->source()->point() <<") to ("<< edge->target()->point() <<") explored: "<<explored<<
+        " edge: ("<< edge->source()->point() <<") to ("<< edge->target()->point() <<") explored: "<<explored<<
         std::endl;
     }
     
 };
+}}
 
 std::vector<int> insert_negative(std::vector<int> vec1, std::vector<int> vec2){
     for (auto i = vec2.begin(); i != vec2.end(); ++i)
@@ -182,8 +198,8 @@ int main() {
     //Begin: Build array of phaces and exterior edge
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    Face_DS phaces[arr.number_of_faces()];
-    Face_DS loader;
+    CGAL::internal::Face_DS phaces[arr.number_of_faces()];
+    CGAL::internal::Face_DS loader;
     Ex_arrangement::Ccb_halfedge_circulator loadedge;
 
     int i = 0;
@@ -211,7 +227,7 @@ int main() {
                       loadedge = currr;
                       neighbor = currr->twin()->face()->data();
                   }
-            phaces[fit->data()-1] = Face_DS(fit->data(), 5.0, loadedge,0);
+            phaces[fit->data()-1] = CGAL::internal::Face_DS(fit->data(), 5.0, loadedge,0);
            // std::cout << loadedge->source()->point();
            // std::cout << std::endl;
         }
